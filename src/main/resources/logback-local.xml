@@ -10,7 +10,7 @@
         </encoder>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <!-- 指定输出级别 -->
-            <level>DEBUG</level>
+            <level>INFO</level>
         </filter>
     </appender>
 

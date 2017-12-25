@@ -7,7 +7,7 @@ git clone https://github.com/shijian-ws/iot-tcpserver.git
 mvn clean package
 
 ### 运行项目
-java -Dspring.profiles.active=local -jar target\iot-tcpserver-0.1.jar &
+java -Dspring.profiles.active=local -jar target/iot-tcpserver-0.1.jar &
 
 ### 查看环境, YWRtaW46YWRtaW4=为admin:admin的Base64编码
 curl -H "Authorization:Basic YWRtaW46YWRtaW4=" http://127.0.0.1:9999/manager/mappings
