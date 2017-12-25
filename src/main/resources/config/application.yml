@@ -1,0 +1,43 @@
+# Spring全局配置
+spring:
+    profiles:
+        # 引用product配置参数,本地开发配置-Dspring.profiles.active=local即可覆盖当前参数
+        #org.springframework.boot.context.config.ConfigFileApplicationListener.ACTIVE_PROFILES_PROPERTY
+        active: product
+        # 包含配置参数
+        #org.springframework.boot.context.config.ConfigFileApplicationListener.INCLUDE_PROFILES_PROPERTY
+        #include: mysql
+
+# HTTP服务器配置
+server:
+    port: 9999
+
+# 应用管理配置
+management:
+    # 管理服务限制访问ip
+    address: 127.0.0.1
+    # 管理服务端口
+    port: 9999
+    # 服务管理地址前缀
+    context-path: /manager
+    # 应用程序安全认证
+    security:
+        # 开启认证
+        enabled: true
+
+# org.springframework.boot.actuate.endpoint.mvc.ShutdownMvcEndpoint
+endpoints:
+    # 是否安全验证,如果开启需要配合spring安全框架
+    sensitive: true
+    # 关闭应用配置
+    shutdown:
+        # 启动关闭应用
+        enabled: true
+        # 设置关闭应用访问路径
+        path: /shutdown
+
+# 配置安全认证信息
+security:
+    user:
+        name: admin
+        password: admin

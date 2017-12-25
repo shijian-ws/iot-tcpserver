@@ -1,0 +1,14 @@
+# 本地开发配置
+
+# ZooKeeper配置
+zk:
+    host: 127.0.0.1
+    port: 2181
+    timeout: 3000
+    retry: 3000
+
+# 自定义服务端连接配置
+connection:
+    port: 30000
+    ssl: false
+    heartbeat-time: 30
