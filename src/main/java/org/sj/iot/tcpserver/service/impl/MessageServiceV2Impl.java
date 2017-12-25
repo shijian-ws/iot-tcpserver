@@ -20,13 +20,12 @@ import org.sj.iot.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 
 /**
@@ -42,9 +41,9 @@ public class MessageServiceV2Impl implements IMessageService {
 
     @Autowired
     private CuratorFramework client;
+
     @Autowired
-    @Qualifier("boss")
-    private ScheduledExecutorService executor;
+    private Executor executor;
 
     @PostConstruct
     public void init() {
@@ -370,13 +369,21 @@ public class MessageServiceV2Impl implements IMessageService {
     @Override
     public void register(String id, String description) {
         String nodePath = String.format("%s/%s", Constants.DEVICE_GATEWAY_PATH, id);
-        this.createNode(nodePath, description == null ? null : description.getBytes(Constants.UTF8_CHARSET), CreateMode.EPHEMERAL);
+        try {
+            this.createNode(nodePath, description == null ? null : description.getBytes(Constants.UTF8_CHARSET), CreateMode.EPHEMERAL);
+        } catch (Exception e) {
+            LOGGER.error("网关设备节点注册失败: {}", e.getMessage());
+        }
     }
 
     @Override
     public void cancel(String id) {
         String nodePath = String.format("%s/%s", Constants.DEVICE_GATEWAY_PATH, id);
-        this.removeNode(nodePath);
+        try {
+            this.removeNode(nodePath);
+        } catch (Exception e) {
+            LOGGER.error("网关设备节点移除失败: {}", e.getMessage());
+        }
     }
 
     @Override

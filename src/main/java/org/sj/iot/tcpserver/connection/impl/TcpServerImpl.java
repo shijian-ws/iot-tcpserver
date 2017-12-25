@@ -112,58 +112,58 @@ public class TcpServerImpl extends AbstractImpl implements ITcpServer {
         initProperties();
         initSslContent();
         this.server.handler(new LoggingHandler(LogLevel.DEBUG)) // 定义Netty输出日志的级别
-                .childHandler(new ChannelInitializer<SocketChannel>() {
-                    @Override
-                    protected void initChannel(SocketChannel ch) throws Exception {
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("IP: {} 连接, 当前连接设备数: {}", ch.remoteAddress(), ChannelUtil.getChannelSize() + 1);
+            .childHandler(new ChannelInitializer<SocketChannel>() {
+                @Override
+                protected void initChannel(SocketChannel ch) throws Exception {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("IP: {} 连接, 当前连接设备数: {}", ch.remoteAddress(), ChannelUtil.getChannelSize() + 1);
+                }
+
+                // 通道关闭监听器
+                ch.closeFuture().addListener(feature -> {
+                    // 移除缓存通道
+                    String mac = ChannelUtil.removeChannel(ch);
+                    if (mac != null) {
+                        if (LOGGER.isWarnEnabled()) {
+                            LOGGER.warn("网关{}设备掉线!", mac);
                         }
-
-                        // 通道关闭监听器
-                        ch.closeFuture().addListener((feature) -> {
-                            // 移除缓存通道
-                            String mac = ChannelUtil.removeChannel(ch);
-                            if (mac != null) {
-                                if (LOGGER.isWarnEnabled()) {
-                                    LOGGER.warn("网关{}设备掉线!", mac);
-                                }
-                                messageService.cancel(mac); // 关闭命令消息服务
-                            }
-                            if (LOGGER.isDebugEnabled()) {
-                                LOGGER.debug("IP: {}, 断开连接!", ch.remoteAddress());
-                            }
-                        });
-
-                        // 管道中回调注册
-                        ChannelPipeline pipeline = ch.pipeline();
-
-                        // 注册消息出站解析器 end
-                        pipeline.addLast(messageEncoder);
-
-                        if (isSsl() && sslContext != null) {
-                            // 使用SSL
-                            SSLEngine engine = sslContext.newEngine(ch.alloc()); // 创建SSL引擎
-                            engine.setEnabledProtocols(new String[]{"TLSv1.2"});
-                            engine.setNeedClientAuth(true); // 开启双向认证
-                            // 注册SSL引擎, start
-                            pipeline.addLast(new SslHandler(engine));
-                        }
-
-                        pipeline
-                                // 注册通道空闲时间监听，2
-                                .addLast(new IdleStateHandler(0, 0, (int) heartbeatTime))
-                                // 注册空闲时间监听的心跳检查，3
-                                .addLast(keepliveHandler)
-                                // 注册TCP粘包/拆包解码器，数据包长度在TCP包的第5,6个字节位置，4
-                                .addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, Constants.V2.MAGIC_NUMBER_LEN, Constants.V2.PACKET_LEN, 0, 0))
-                                // 注册远程设备消息接收解析器，5
-                                .addLast(messageDecoder)
-                                // 注册远程设备响应结果处理器，6
-                                .addLast(processHandler)
-                                // 注册远程设备发送信息处理器，7
-                                .addLast(requestHandler);
+                        messageService.cancel(mac); // 关闭命令消息服务
+                    }
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("IP: {}, 断开连接!", ch.remoteAddress());
                     }
                 });
+
+                // 管道中回调注册
+                ChannelPipeline pipeline = ch.pipeline();
+
+                // 注册消息出站解析器 end
+                pipeline.addLast(messageEncoder);
+
+                if (isSsl() && sslContext != null) {
+                    // 使用SSL
+                    SSLEngine engine = sslContext.newEngine(ch.alloc()); // 创建SSL引擎
+                    engine.setEnabledProtocols(new String[]{"TLSv1.2"});
+                    engine.setNeedClientAuth(true); // 开启双向认证
+                    // 注册SSL引擎, start
+                    pipeline.addLast(new SslHandler(engine));
+                }
+
+                pipeline
+                    // 注册通道空闲时间监听，2
+                    .addLast(new IdleStateHandler(0, 0, (int) heartbeatTime))
+                    // 注册空闲时间监听的心跳检查，3
+                    .addLast(keepliveHandler)
+                    // 注册TCP粘包/拆包解码器，数据包长度在TCP包的第5,6个字节位置，4
+                    .addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, Constants.V2.MAGIC_NUMBER_LEN, Constants.V2.PACKET_LEN, 0, 0))
+                    // 注册远程设备消息接收解析器，5
+                    .addLast(messageDecoder)
+                    // 注册远程设备响应结果处理器，6
+                    .addLast(processHandler)
+                    // 注册远程设备发送信息处理器，7
+                    .addLast(requestHandler);
+                }
+            });
     }
 
     @Override

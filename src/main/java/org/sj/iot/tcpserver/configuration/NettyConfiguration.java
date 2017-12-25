@@ -22,7 +22,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class NettyConfiguration {
     /**
-     * 主服务线程池
+     * 主服务线程池, 注意如果该线程池被用于其他任务, 则可能会卡死主服务, 导入tcp连接进不来
      */
     @Bean
     public EventLoopGroup boss() {
@@ -30,7 +30,7 @@ public class NettyConfiguration {
     }
 
     /**
-     * 任务线程池
+     * 任务线程池, 注意如果该线程池被用于其他任务, 则可能卡死通道, 导致数据无法被处理
      */
     @Bean
     public EventLoopGroup worker() {

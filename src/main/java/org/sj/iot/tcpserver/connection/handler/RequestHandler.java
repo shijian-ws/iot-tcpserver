@@ -17,6 +17,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.Executor;
+
 /**
  * 远程设备主动请求信息处理器
  *
@@ -28,6 +30,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class RequestHandler extends ChannelInboundHandlerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(RequestHandler.class);
+
+    @Autowired
+    private Executor executor;
 
     @Autowired
     private IMessageService messageService;
@@ -43,7 +48,7 @@ public class RequestHandler extends ChannelInboundHandlerAdapter {
         // 通用响应远程设备
         ChannelUtil.writeMessage(ctx, MessageV2Util.responseOK(message));
         // 异步远程设备请求业务
-        ctx.executor().execute(() -> {
+        executor.execute(() -> {
             DataBody body = message.getDataBody();
             String type = body.getType();
             if (Cmd.GATEWAY_INFO.equals(type)) {
