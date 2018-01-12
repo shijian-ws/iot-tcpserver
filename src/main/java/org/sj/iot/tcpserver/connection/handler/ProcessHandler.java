@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * 任务回调处理
@@ -28,7 +29,7 @@ public class ProcessHandler extends ChannelInboundHandlerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessHandler.class);
 
     @Autowired
-    private Executor executor;
+    private ThreadPoolExecutor executor;
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {

@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * 远程设备主动请求信息处理器
@@ -32,7 +32,7 @@ public class RequestHandler extends ChannelInboundHandlerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(RequestHandler.class);
 
     @Autowired
-    private Executor executor;
+    private ThreadPoolExecutor executor;
 
     @Autowired
     private IMessageService messageService;
